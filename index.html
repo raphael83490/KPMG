@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KPMG Chat Interface</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Phosphor Icons for modern clean icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="new-chat-btn">
+                <button id="new-chat-button">
+                    <i class="ph ph-plus"></i>
+                    <span>Nouveau chat</span>
+                </button>
+            </div>
+
+            <div class="history-list">
+                <div class="history-group">
+                    <h3>Aujourd'hui</h3>
+                    <div class="history-item active">
+                        <i class="ph ph-chat-circle"></i>
+                        <span>Analyse de marché</span>
+                    </div>
+                    <div class="history-item">
+                        <i class="ph ph-chat-circle"></i>
+                        <span>Stratégie digitale</span>
+                    </div>
+                </div>
+                <div class="history-group">
+                    <h3>Hier</h3>
+                    <div class="history-item">
+                        <i class="ph ph-chat-circle"></i>
+                        <span>Compte rendu réunion</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="user-profile">
+                <div class="avatar">BC</div>
+                <div class="user-info">
+                    <span class="name">Benoit Chaboud</span>
+                    <span class="plan">Premium</span>
+                </div>
+                <i class="ph ph-dots-three-circle"></i>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-area">
+            <header class="chat-header">
+                <div class="model-selector">
+                    <span>KPMG Assistant 4.0</span>
+                    <i class="ph ph-caret-down"></i>
+                </div>
+            </header>
+
+            <div class="messages-container" id="messages-container">
+                <!-- Welcome Empty State -->
+                <div class="empty-state">
+                    <div class="logo-wrapper">
+                        <div class="logo-circle"></div>
+                    </div>
+                    <h2>Comment puis-je vous aider aujourd'hui ?</h2>
+                </div>
+
+                <!-- Messages will appear here -->
+            </div>
+
+            <div class="input-area-wrapper">
+                <div class="input-container">
+                    <div class="input-actions">
+                        <button class="action-btn" title="Joindre un fichier">
+                            <i class="ph ph-paperclip"></i>
+                        </button>
+                    </div>
+                    <textarea id="chat-input" placeholder="Envoyer un message au KPMG Assistant..." rows="1"></textarea>
+                    <button id="send-btn" class="send-btn" disabled>
+                        <i class="ph ph-arrow-up"></i>
+                    </button>
+                </div>
+                <div class="disclaimer">
+                    L'IA peut commettre des erreurs. Pensez à vérifier les informations importantes.
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
