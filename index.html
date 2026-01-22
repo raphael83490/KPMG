@@ -11,36 +11,56 @@
     <link rel="stylesheet" href="styles.css">
     <!-- Phosphor Icons for modern clean icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Markdown Parser (Marked) -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- PPTX Generator -->
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
 </head>
 
 <body>
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="new-chat-btn">
-                <button id="new-chat-button">
+            <div class="sidebar-actions">
+                <button id="new-chat-button" class="sidebar-action-btn">
                     <i class="ph ph-plus"></i>
                     <span>Nouveau chat</span>
                 </button>
+                <button id="new-folder-button" class="sidebar-action-btn" title="Nouveau dossier">
+                    <i class="ph ph-folder-plus"></i>
+                </button>
             </div>
 
-            <div class="history-list">
+            <div class="history-list" id="history-list">
                 <div class="history-group">
                     <h3>Aujourd'hui</h3>
-                    <div class="history-item active">
+                    <div class="history-item active" data-id="1">
                         <i class="ph ph-chat-circle"></i>
                         <span>Analyse de marché</span>
                     </div>
-                    <div class="history-item">
-                        <i class="ph ph-chat-circle"></i>
-                        <span>Stratégie digitale</span>
-                    </div>
                 </div>
-                <div class="history-group">
-                    <h3>Hier</h3>
-                    <div class="history-item">
-                        <i class="ph ph-chat-circle"></i>
-                        <span>Compte rendu réunion</span>
+
+                <!-- Sample Folder -->
+                <div class="folder expanded">
+                    <div class="folder-header">
+                        <div class="folder-title">
+                            <i class="ph ph-folder"></i>
+                            <span>Projets KPMG</span>
+                        </div>
+                        <div class="folder-actions">
+                            <i class="ph ph-plus folder-add-page" title="Ajouter une page"></i>
+                            <i class="ph ph-caret-down folder-caret"></i>
+                        </div>
+                    </div>
+                    <div class="folder-content">
+                        <div class="history-item" data-id="2">
+                            <i class="ph ph-chat-circle"></i>
+                            <span>Stratégie digitale</span>
+                        </div>
+                        <div class="history-item" data-id="3">
+                            <i class="ph ph-chat-circle"></i>
+                            <span>Compte rendu réunion</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -58,19 +78,91 @@
         <!-- Main Chat Area -->
         <main class="chat-area">
             <header class="chat-header">
-                <div class="model-selector">
-                    <span>KPMG Assistant 4.0</span>
-                    <i class="ph ph-caret-down"></i>
-                </div>
+                <!-- Export Button -->
+                <button id="export-pptx-btn" class="header-action-btn" title="Exporter en PPTX">
+                    <i class="ph ph-presentation"></i>
+                    <span>Exporter le rapport</span>
+                </button>
             </header>
 
             <div class="messages-container" id="messages-container">
                 <!-- Welcome Empty State -->
-                <div class="empty-state">
+                <div class="empty-state" id="empty-state">
                     <div class="logo-wrapper">
                         <div class="logo-circle"></div>
                     </div>
-                    <h2>Comment puis-je vous aider aujourd'hui ?</h2>
+                    <h2 id="welcome-message">Bonjour, je suis Sof.IA comment puis-je vous aider aujourd'hui ?</h2>
+                </div>
+
+                <!-- Market Logic Form (Hidden by default) -->
+                <div class="market-form-container hidden" id="market-form-container">
+                    <div class="market-form-card">
+                        <h3><i class="ph ph-chart-line-up"></i> Nouvelle Analyse de Marché</h3>
+                        <p>Veuillez renseigner les détails de la mission pour initier l'agent.</p>
+
+                        <form id="market-form">
+                            <div class="form-group">
+                                <label>Site web du client</label>
+                                <input type="text" id="mf-website" placeholder="ex: www.kpmg.fr" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Nom du marché</label>
+                                <input type="text" id="mf-market" placeholder="ex: Cybersécurité, BTP..." required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Zone géographique</label>
+                                    <input type="text" id="mf-geo" placeholder="ex: France, Europe" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Type de mission</label>
+                                    <select id="mf-mission">
+                                        <option value="due-diligence">Due Diligence</option>
+                                        <option value="strategy">Stratégie de croissance</option>
+                                        <option value="benchmark">Benchmark</option>
+                                        <option value="regulatory">Vielle réglementaire</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="submit-market-btn">
+                                <span>Lancer l'analyse</span>
+                                <i class="ph ph-arrow-right"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Dictaphone Interface (Hidden by default) -->
+                <div class="dictaphone-container hidden" id="dictaphone-container">
+                    <div class="dictaphone-card">
+                        <div class="dictaphone-header">
+                            <h3><i class="ph ph-microphone"></i> Dictaphone KPMG</h3>
+                            <span class="status-badge">Prêt à enregistrer</span>
+                        </div>
+
+                        <div class="audio-visualizer">
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                        </div>
+
+                        <div class="timer" id="recording-timer">00:00</div>
+
+                        <div class="controls">
+                            <button id="record-btn" class="record-btn">
+                                <div class="inner-circle"></div>
+                            </button>
+                        </div>
+
+                        <p class="instruction-text">Appuyez pour commencer l'enregistrement</p>
+                    </div>
                 </div>
 
                 <!-- Messages will appear here -->
@@ -88,6 +180,19 @@
                         <i class="ph ph-arrow-up"></i>
                     </button>
                 </div>
+
+                <!-- Market Mode Toggle (Below Input) -->
+                <div class="input-footer-actions">
+                    <div class="mode-toggle-pill" id="market-mode-toggle">
+                        <i class="ph ph-chart-line-up"></i>
+                        <span>Mode Étude de Marché</span>
+                    </div>
+                    <div class="mode-toggle-pill" id="call-summary-toggle">
+                        <i class="ph ph-phone-call"></i>
+                        <span>Résumé d'appel</span>
+                    </div>
+                </div>
+
                 <div class="disclaimer">
                     L'IA peut commettre des erreurs. Pensez à vérifier les informations importantes.
                 </div>
