@@ -3,6 +3,29 @@ const sendBtn = document.querySelector('#send-btn');
 const messagesContainer = document.querySelector('#messages-container');
 const emptyState = document.querySelector('.empty-state');
 
+// Conversation ID Management
+let currentConversationId = null;
+const CONVERSATION_ID_KEY = 'kpmg_current_conversation_id';
+
+// Initialize or load conversation ID
+function initializeConversationId() {
+    const savedId = localStorage.getItem(CONVERSATION_ID_KEY);
+    if (savedId) {
+        currentConversationId = savedId;
+    } else {
+        generateNewConversationId();
+    }
+}
+
+function generateNewConversationId() {
+    currentConversationId = `conv-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    localStorage.setItem(CONVERSATION_ID_KEY, currentConversationId);
+    return currentConversationId;
+}
+
+// Initialize on page load
+initializeConversationId();
+
 // --- Auto-resize textarea ---
 chatInput.addEventListener('input', function () {
     this.style.height = 'auto';
@@ -32,6 +55,11 @@ function sendMessage() {
     const text = chatInput.value.trim();
     if (!text) return;
 
+    // Ensure we have a conversation ID
+    if (!currentConversationId) {
+        generateNewConversationId();
+    }
+
     // Remove empty state if it's the first message
     if (emptyState) {
         emptyState.style.display = 'none';
@@ -47,17 +75,49 @@ function sendMessage() {
     chatInput.style.height = 'auto';
     sendBtn.setAttribute('disabled', 'true');
 
-    // Simulate Bot Response
-    setTimeout(() => {
-        showTypingIndicator();
+    // Send to webhook for chat messages
+    sendChatMessageToWebhook(text);
+}
 
-        // Mock API delay
-        setTimeout(() => {
-            removeTypingIndicator();
+async function sendChatMessageToWebhook(text) {
+    showTypingIndicator();
+
+    const webhookUrl = 'https://n8n.srv849307.hstgr.cloud/webhook/e3160991-67f7-4a16-a1e3-da8d8c84537f';
+
+    try {
+        const response = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: text,
+                conversation_id: currentConversationId
+            })
+        });
+
+        removeTypingIndicator();
+
+        if (response.ok) {
+            const data = await response.json();
+            let botResponse = "Je n'ai pas pu traiter votre demande.";
+            if (typeof data === 'string') botResponse = data;
+            else if (data.output) botResponse = data.output;
+            else if (data.message) botResponse = data.message;
+            else if (data.text) botResponse = data.text;
+            else botResponse = JSON.stringify(data, null, 2);
+
+            addMessage(botResponse, 'bot');
+        } else {
+            // Fallback to mock response if webhook fails
             const response = generateMockResponse(text);
             addMessage(response, 'bot');
-        }, 1500);
-    }, 500);
+        }
+    } catch (error) {
+        console.error(error);
+        removeTypingIndicator();
+        // Fallback to mock response
+        const response = generateMockResponse(text);
+        addMessage(response, 'bot');
+    }
 }
 
 function addMessage(text, sender) {
@@ -78,14 +138,43 @@ function addMessage(text, sender) {
 
     const contentDiv = document.createElement('div');
     contentDiv.classList.add('message-content');
-    contentDiv.innerHTML = formatText(text);
+    
+    // Format text and handle graphs/tables
+    const formattedHtml = formatText(text);
+    contentDiv.innerHTML = formattedHtml;
 
     innerDiv.appendChild(avatarDiv);
     innerDiv.appendChild(contentDiv);
     messageDiv.appendChild(innerDiv);
 
     messagesContainer.appendChild(messageDiv);
+    
+    // Render charts after DOM insertion
+    setTimeout(() => {
+        renderChartsInMessage(contentDiv);
+    }, 100);
+    
     scrollToBottom();
+}
+
+function renderChartsInMessage(container) {
+    const chartContainers = container.querySelectorAll('.chart-container');
+    chartContainers.forEach(chartContainer => {
+        const canvas = chartContainer.querySelector('canvas');
+        if (canvas && !canvas.chart) {
+            const chartId = canvas.id;
+            const graphDataAttr = chartContainer.getAttribute('data-graph');
+            if (graphDataAttr) {
+                try {
+                    const graphData = JSON.parse(graphDataAttr);
+                    renderChart(chartId, graphData);
+                    canvas.chart = true; // Mark as rendered
+                } catch (e) {
+                    console.warn('Failed to parse graph data:', e);
+                }
+            }
+        }
+    });
 }
 
 let typingIndicatorElement = null;
@@ -142,12 +231,186 @@ function generateMockResponse(input) {
 }
 
 function formatText(text) {
-    // Check if 'marked' library is available
-    if (typeof marked !== 'undefined') {
-        return marked.parse(text);
+    // First, extract and replace JSON graphs/tables with placeholders
+    const graphPlaceholders = [];
+    const tablePlaceholders = [];
+    
+    // Pattern to find JSON objects in the text (graph or table)
+    const jsonPattern = /\{[\s\S]*?"type"\s*:\s*"(bar|pie|line|scatter|table)"[\s\S]*?\}/g;
+    let match;
+    let processedText = text;
+    let offset = 0;
+    
+    // Find all JSON objects
+    const jsonMatches = [];
+    while ((match = jsonPattern.exec(text)) !== null) {
+        try {
+            const jsonObj = JSON.parse(match[0]);
+            if (jsonObj.type === 'table') {
+                const placeholder = `__TABLE_PLACEHOLDER_${tablePlaceholders.length}__`;
+                tablePlaceholders.push({ placeholder, data: jsonObj });
+                processedText = processedText.replace(match[0], placeholder);
+            } else if (['bar', 'pie', 'line', 'scatter'].includes(jsonObj.type)) {
+                const placeholder = `__GRAPH_PLACEHOLDER_${graphPlaceholders.length}__`;
+                graphPlaceholders.push({ placeholder, data: jsonObj });
+                processedText = processedText.replace(match[0], placeholder);
+            }
+        } catch (e) {
+            // Invalid JSON, skip
+            console.warn('Invalid JSON found:', match[0]);
+        }
     }
-    // Fallback if marked didn't load
-    return text.replace(/\n/g, '<br>');
+    
+    // Parse markdown
+    let html = '';
+    if (typeof marked !== 'undefined') {
+        html = marked.parse(processedText);
+    } else {
+        html = processedText.replace(/\n/g, '<br>');
+    }
+    
+    // Replace placeholders with actual graph/table components
+    graphPlaceholders.forEach(({ placeholder, data }, index) => {
+        const graphId = `chart-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`;
+        const graphHtml = createGraphElement(graphId, data);
+        html = html.replace(placeholder, graphHtml);
+    });
+    
+    tablePlaceholders.forEach(({ placeholder, data }) => {
+        const tableHtml = createTableElement(data);
+        html = html.replace(placeholder, tableHtml);
+    });
+    
+    return html;
+}
+
+function createGraphElement(chartId, graphData) {
+    const container = document.createElement('div');
+    container.className = 'chart-container';
+    container.setAttribute('data-graph', JSON.stringify(graphData));
+    container.innerHTML = `
+        <div class="chart-wrapper">
+            <canvas id="${chartId}"></canvas>
+        </div>
+    `;
+    
+    return container.outerHTML;
+}
+
+function renderChart(canvasId, graphData) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    const { type, title, data, labels, datasets } = graphData;
+    
+    let chartConfig = {
+        type: type === 'pie' ? 'pie' : type === 'scatter' ? 'scatter' : type === 'line' ? 'line' : 'bar',
+        data: {
+            labels: labels || (data && data.labels) || [],
+            datasets: datasets || (data && data.datasets) || [{
+                label: title || 'Données',
+                data: data && data.values ? data.values : (data && Array.isArray(data) ? data : []),
+                backgroundColor: getDefaultColors(type),
+                borderColor: getDefaultBorderColors(type),
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                title: {
+                    display: !!title,
+                    text: title || ''
+                },
+                legend: {
+                    display: type === 'pie' || (datasets && datasets.length > 1)
+                }
+            },
+            scales: type !== 'pie' && type !== 'scatter' ? {
+                y: {
+                    beginAtZero: true
+                }
+            } : {}
+        }
+    };
+    
+    // Handle scatter plot
+    if (type === 'scatter' && data && data.points) {
+        chartConfig.data.datasets = [{
+            label: title || 'Données',
+            data: data.points,
+            backgroundColor: 'rgba(0, 51, 141, 0.6)',
+            borderColor: 'rgba(0, 51, 141, 1)'
+        }];
+    }
+    
+    new Chart(ctx, chartConfig);
+}
+
+function createTableElement(tableData) {
+    const { title, headers, rows, data } = tableData;
+    
+    let tableHeaders = headers || [];
+    let tableRows = rows || [];
+    
+    // If data is provided in a different format, convert it
+    if (data && Array.isArray(data)) {
+        if (data.length > 0 && Array.isArray(data[0])) {
+            tableHeaders = data[0];
+            tableRows = data.slice(1);
+        } else if (data.length > 0 && typeof data[0] === 'object') {
+            tableHeaders = Object.keys(data[0]);
+            tableRows = data.map(row => Object.values(row));
+        }
+    }
+    
+    let tableHtml = '<div class="table-container">';
+    if (title) {
+        tableHtml += `<h4 class="table-title">${title}</h4>`;
+    }
+    tableHtml += '<table class="data-table">';
+    
+    if (tableHeaders.length > 0) {
+        tableHtml += '<thead><tr>';
+        tableHeaders.forEach(header => {
+            tableHtml += `<th>${header}</th>`;
+        });
+        tableHtml += '</tr></thead>';
+    }
+    
+    tableHtml += '<tbody>';
+    tableRows.forEach(row => {
+        tableHtml += '<tr>';
+        (Array.isArray(row) ? row : Object.values(row)).forEach(cell => {
+            tableHtml += `<td>${cell}</td>`;
+        });
+        tableHtml += '</tr>';
+    });
+    tableHtml += '</tbody></table></div>';
+    
+    return tableHtml;
+}
+
+function getDefaultColors(type) {
+    const colors = {
+        bar: ['rgba(0, 51, 141, 0.8)', 'rgba(0, 145, 218, 0.8)', 'rgba(0, 102, 204, 0.8)'],
+        pie: ['rgba(0, 51, 141, 0.8)', 'rgba(0, 145, 218, 0.8)', 'rgba(0, 102, 204, 0.8)', 'rgba(0, 77, 163, 0.8)', 'rgba(0, 128, 191, 0.8)'],
+        line: 'rgba(0, 51, 141, 0.8)',
+        scatter: 'rgba(0, 51, 141, 0.6)'
+    };
+    return colors[type] || colors.bar;
+}
+
+function getDefaultBorderColors(type) {
+    const colors = {
+        bar: ['rgba(0, 51, 141, 1)', 'rgba(0, 145, 218, 1)', 'rgba(0, 102, 204, 1)'],
+        pie: ['rgba(0, 51, 141, 1)', 'rgba(0, 145, 218, 1)', 'rgba(0, 102, 204, 1)', 'rgba(0, 77, 163, 1)', 'rgba(0, 128, 191, 1)'],
+        line: 'rgba(0, 51, 141, 1)',
+        scatter: 'rgba(0, 51, 141, 1)'
+    };
+    return colors[type] || colors.bar;
 }
 
 /* --- Model Selection (New Toggle) --- */
@@ -378,6 +641,11 @@ if (marketForm) {
         // 3. Send to Webhook
         const webhookUrl = 'https://n8n.srv849307.hstgr.cloud/webhook/e3160991-67f7-4a16-a1e3-da8d8c84537f';
 
+        // Ensure we have a conversation ID
+        if (!currentConversationId) {
+            generateNewConversationId();
+        }
+
         try {
             const response = await fetch(webhookUrl, {
                 method: 'POST',
@@ -386,7 +654,8 @@ if (marketForm) {
                     client_website: website,
                     market_name: market,
                     geography: geo,
-                    mission_type: mission
+                    mission_type: mission,
+                    conversation_id: currentConversationId
                 })
             });
 
@@ -694,6 +963,8 @@ if (newChatBtn) {
 }
 
 function loadNewChatContext() {
+    // Generate new conversation ID for new chat
+    generateNewConversationId();
     messagesContainer.innerHTML = '';
     if (emptyState) {
         emptyState.style.display = 'flex';
