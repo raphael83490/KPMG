@@ -50,8 +50,14 @@ body {
     transition: transform 0.3s ease;
 }
 
-.new-chat-btn button {
-    width: 100%;
+/* Sidebar Actions */
+.sidebar-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.sidebar-action-btn {
     padding: 0.75rem 1rem;
     background-color: transparent;
     border: 1px solid var(--border-subtle);
@@ -60,20 +66,33 @@ body {
     cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.75rem;
     font-size: 0.9rem;
-    transition: background 0.2s;
-    text-align: left;
+    transition: background 0.2s, color 0.2s;
 }
 
-.new-chat-btn button:hover {
+/* Specific width for the main new chat button to take up available space */
+#new-chat-button {
+    flex: 1;
+    justify-content: flex-start;
+}
+
+#new-folder-button {
+    width: 42px;
+    /* Square-ish */
+    padding: 0;
+}
+
+.sidebar-action-btn:hover {
     background-color: #1a1a1a;
+    border-color: var(--text-secondary);
 }
 
 .history-list {
     flex: 1;
     overflow-y: auto;
-    margin-top: 1.5rem;
+    /* margin-top: 1.5rem; removed as it is now handled by sidebar-actions margin */
     scrollbar-width: thin;
     scrollbar-color: #444 transparent;
 }
@@ -109,6 +128,85 @@ body {
 .history-item span {
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/* Folders */
+.folder {
+    margin-bottom: 0.25rem;
+}
+
+.folder-header {
+    padding: 0.5rem 0.5rem 0.5rem 0;
+    /* Align with history items visual indent usually */
+    /* But actually history-item has padding: 0.6rem 0.75rem; */
+    /* Let's match history item mostly but with caret */
+    padding: 0.6rem 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    border-radius: 0.5rem;
+    transition: background 0.2s;
+}
+
+.folder-header:hover {
+    background-color: #1a1a1a;
+    color: var(--text-primary);
+}
+
+.folder-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.folder-caret {
+    transition: transform 0.2s ease;
+    font-size: 0.8rem;
+}
+
+.folder.expanded .folder-caret {
+    transform: rotate(180deg);
+}
+
+.folder-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.folder-add-page {
+    opacity: 0;
+    transition: opacity 0.2s, color 0.2s;
+    padding: 2px;
+}
+
+.folder-header:hover .folder-add-page {
+    opacity: 1;
+}
+
+.folder-add-page:hover {
+    color: var(--text-primary);
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.folder-content {
+    padding-left: 0.75rem;
+    /* Indentation for nested items */
+    display: none;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-top: 0.2rem;
+}
+
+.folder.expanded .folder-content {
+    display: flex;
 }
 
 .user-profile {
@@ -166,6 +264,7 @@ body {
     background-color: var(--bg-dark);
 }
 
+/* Model Dropdown & Header */
 .chat-header {
     height: 60px;
     display: flex;
@@ -173,9 +272,14 @@ body {
     padding: 0 1.5rem;
     font-weight: 600;
     color: var(--text-secondary);
+    position: relative;
+    /* Changed from sticky to relative context for dropdown, but usually sticky. */
+    /* Wait, if I make it relative, sticky top:0 might break? */
+    /* Let's keep position sticky but ensure z-index is high */
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 100;
+    user-select: none;
 }
 
 .model-selector {
@@ -191,6 +295,205 @@ body {
 .model-selector:hover {
     background-color: #2f2f2f;
     color: var(--text-primary);
+}
+
+.header-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: transparent;
+    border: 1px solid var(--border-subtle);
+    border-radius: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: auto;
+    /* Push to right if needed, or just regular flow */
+}
+
+.header-action-btn:hover {
+    background-color: #2f2f2f;
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+}
+
+.model-dropdown {
+    position: absolute;
+    top: 60px;
+    left: 20px;
+    background-color: #1e1e1e;
+    border: 1px solid var(--border-subtle);
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    width: 300px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    z-index: 200;
+    animation: fadeIn 0.2s ease;
+}
+
+.model-dropdown.hidden {
+    display: none;
+}
+
+.model-option {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    justify-content: space-between;
+}
+
+.model-option:hover {
+    background-color: #2a2a2a;
+}
+
+.model-option .model-icon {
+    width: 32px;
+    height: 32px;
+    background-color: #2f2f2f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    font-size: 1.2rem;
+}
+
+.model-option .model-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.model-option .model-name {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.model-option .model-desc {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+.model-option i.check-icon {
+    color: var(--accent);
+    opacity: 0;
+}
+
+/* Selected state styling could be done via JS adding a class */
+.model-option.selected i.check-icon {
+    opacity: 1;
+}
+
+/* Market Form Styling */
+.market-form-container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    /* Centering */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.5s ease;
+}
+
+.market-form-container.hidden {
+    display: none;
+}
+
+.market-form-card {
+    background-color: #1e1e1e;
+    border: 1px solid var(--border-subtle);
+    padding: 2rem;
+    border-radius: 1rem;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.market-form-card h3 {
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+}
+
+.market-form-card p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.form-group input,
+.form-group select {
+    background-color: #2a2a2a;
+    border: 1px solid var(--border-subtle);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--accent);
+}
+
+.submit-market-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: linear-gradient(135deg, var(--kpmg-blue), var(--kpmg-light-blue));
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: transform 0.2s;
+}
+
+.submit-market-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
 }
 
 .messages-container {
@@ -341,6 +644,48 @@ body {
     margin-top: 0.75rem;
 }
 
+/* Footer Actions (Mode Toggles) */
+.input-footer-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    /* Left aligned or center? */
+    margin-top: 0.75rem;
+    margin-left: 0.5rem;
+}
+
+.mode-toggle-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    background-color: transparent;
+    border: 1px solid var(--border-subtle);
+    border-radius: 999px;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mode-toggle-pill:hover {
+    background-color: #2f2f2f;
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+}
+
+.mode-toggle-pill.active {
+    background-color: rgba(16, 163, 127, 0.15);
+    /* Green tint or KPMG Blue? */
+    background-color: rgba(0, 51, 141, 0.15);
+    /* KPMG Blue tint */
+    color: #3b82f6;
+    /* Lighter blue for dark mode */
+    color: #60a5fa;
+    border-color: #00338D;
+}
+
 /* Messages */
 .message {
     width: 100%;
@@ -359,9 +704,7 @@ body {
     gap: 1.5rem;
 }
 
-.message.user {
-    /* background-color: transparent; */
-}
+
 
 .message.bot {
     background-color: transparent;
@@ -394,6 +737,63 @@ body {
     line-height: 1.6;
     font-size: 1rem;
     padding-top: 6px;
+    overflow-wrap: break-word;
+    /* Prevent overflow */
+}
+
+/* Markdown Styles inside Message */
+.message-content p {
+    margin-bottom: 0.75rem;
+}
+
+.message-content p:last-child {
+    margin-bottom: 0;
+}
+
+.message-content h1,
+.message-content h2,
+.message-content h3,
+.message-content h4 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.message-content h1 {
+    font-size: 1.5rem;
+}
+
+.message-content h2 {
+    font-size: 1.25rem;
+}
+
+.message-content h3 {
+    font-size: 1.1rem;
+}
+
+.message-content ul,
+.message-content ol {
+    margin-bottom: 0.75rem;
+    padding-left: 1.5rem;
+}
+
+.message-content li {
+    margin-bottom: 0.25rem;
+}
+
+.message-content strong {
+    font-weight: 600;
+    color: white;
+    /* Make bold text pop */
+}
+
+.message-content code {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9em;
 }
 
 /* Typing Indicator */
@@ -476,4 +876,239 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
+}
+
+/* Dictaphone Interface Styling */
+.dictaphone-container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.5s ease;
+}
+
+.dictaphone-container.hidden {
+    display: none;
+}
+
+.dictaphone-card {
+    background-color: #1e1e1e;
+    border: 1px solid var(--border-subtle);
+    padding: 2.5rem;
+    border-radius: 2rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.dictaphone-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.dictaphone-header h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.status-badge {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s;
+}
+
+.status-badge.recording {
+    background-color: rgba(255, 59, 48, 0.15);
+    color: #ff3b30;
+    animation: pulseBadge 1.5s infinite;
+}
+
+@keyframes pulseBadge {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Visualizer */
+.audio-visualizer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 60px;
+    width: 100%;
+}
+
+.bar {
+    width: 6px;
+    background-color: var(--text-secondary);
+    border-radius: 3px;
+    height: 10%;
+    transition: height 0.1s ease;
+}
+
+.dictaphone-card.recording .bar {
+    background: linear-gradient(to top, var(--kpmg-blue), var(--kpmg-light-blue));
+    animation: visualize 1s infinite alternate;
+}
+
+/* Create random delays for wave effect */
+.bar:nth-child(1) {
+    animation-delay: 0.1s;
+    height: 30%;
+}
+
+.bar:nth-child(2) {
+    animation-delay: 0.3s;
+    height: 50%;
+}
+
+.bar:nth-child(3) {
+    animation-delay: 0.5s;
+    height: 79%;
+}
+
+.bar:nth-child(4) {
+    animation-delay: 0.2s;
+    height: 40%;
+}
+
+.bar:nth-child(5) {
+    animation-delay: 0.4s;
+    height: 60%;
+}
+
+.bar:nth-child(6) {
+    animation-delay: 0.1s;
+    height: 45%;
+}
+
+.bar:nth-child(7) {
+    animation-delay: 0.6s;
+    height: 70%;
+}
+
+.bar:nth-child(8) {
+    animation-delay: 0.3s;
+    height: 35%;
+}
+
+.bar:nth-child(9) {
+    animation-delay: 0.5s;
+    height: 55%;
+}
+
+.bar:nth-child(10) {
+    animation-delay: 0.2s;
+    height: 30%;
+}
+
+@keyframes visualize {
+    0% {
+        height: 10%;
+    }
+
+    100% {
+        height: 100%;
+    }
+}
+
+.timer {
+    font-size: 3.5rem;
+    font-weight: 300;
+    /* Thin font looks premium */
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 2px;
+}
+
+/* Controls */
+.controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.record-btn {
+    width: 72px;
+    height: 72px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    background: transparent;
+    padding: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.record-btn:hover {
+    border-color: rgba(255, 255, 255, 0.8);
+    transform: scale(1.05);
+}
+
+.inner-circle {
+    width: 100%;
+    height: 100%;
+    background-color: #ff3b30;
+    /* Red */
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.dictaphone-card.recording .record-btn {
+    border-color: rgba(255, 59, 48, 0.5);
+}
+
+.dictaphone-card.recording .inner-circle {
+    border-radius: 8px;
+    /* Square */
+    transform: scale(0.5);
+    /* Smaller */
+    background-color: #ff3b30;
+}
+
+.instruction-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+/* Hide bars when not recording or just static line */
+.dictaphone-card:not(.recording) .bar {
+    animation: none;
+    height: 4px !important;
+    background-color: #333;
 }
