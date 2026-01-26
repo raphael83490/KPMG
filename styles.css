@@ -1,10 +1,15 @@
 :root {
-    --bg-dark: #0f0f0f;
+    --bg-dark: #404BD5;
+    /* Replaced #0f0f0f */
     /* Slightly lighter than pure black */
-    --bg-sidebar: #000000;
-    --bg-input: #2f2f2f;
+    --bg-sidebar: #404BD5;
+    /* Replaced #000000 */
+    /* Transparent input to show background if desired, or keep as is */
+    --bg-input: rgba(64, 75, 213, 0.9);
+    /* Replaced 47,47,47 approx or just matching theme */
     --text-primary: #ececec;
-    --text-secondary: #b4b4b4;
+    --text-secondary: #e0e0e0;
+    /* lightened for better contrast on blue */
     --accent: #10a37f;
     /* ChatGPT Green reference or similar */
     --accent-hover: #1a7f64;
@@ -25,12 +30,23 @@
 }
 
 body {
-    background-color: var(--bg-dark);
+    background-color: transparent;
+    /* Changed from var(--bg-dark) */
     color: var(--text-primary);
     font-family: var(--font-family);
     height: 100vh;
     overflow: hidden;
     display: flex;
+}
+
+#shader-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
 }
 
 .app-container {
@@ -42,7 +58,7 @@ body {
 /* Sidebar */
 .sidebar {
     width: 260px;
-    background-color: var(--bg-sidebar);
+    background-color: rgba(64, 75, 213, 0.95);
     display: flex;
     flex-direction: column;
     padding: 1rem;
@@ -51,6 +67,18 @@ body {
 }
 
 /* Sidebar Actions */
+.sidebar-logo {
+    padding: 0.5rem 0.5rem 1.5rem 0.5rem;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.sidebar-logo img {
+    max-width: 140px;
+    height: auto;
+    object-fit: contain;
+}
+
 .sidebar-actions {
     display: flex;
     gap: 0.5rem;
@@ -261,7 +289,8 @@ body {
     display: flex;
     flex-direction: column;
     position: relative;
-    background-color: var(--bg-dark);
+    background-color: rgba(64, 75, 213, 0.85);
+    /* Slightly transparent dark */
 }
 
 /* Model Dropdown & Header */
@@ -533,7 +562,7 @@ body {
     position: absolute;
     inset: 16px;
     border-radius: 50%;
-    background: #000;
+    background: #404BD5;
     /* Placeholder for logo content */
 }
 
@@ -624,7 +653,7 @@ body {
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s;
-    color: black;
+    color: #404BD5;
 }
 
 .send-btn:disabled {
