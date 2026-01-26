@@ -690,11 +690,15 @@ body {
 .message {
     width: 100%;
     /* max-width: 800px; */
-    padding: 1.5rem;
+    padding: 1.5rem 1.5rem 2rem 1.5rem;
     display: flex;
     justify-content: center;
     gap: 1.5rem;
     animation: slideIn 0.3s ease;
+}
+
+.message.bot {
+    padding-bottom: 2.5rem;
 }
 
 .message-inner {
@@ -744,32 +748,84 @@ body {
 /* Markdown Styles inside Message */
 .message-content p {
     margin-bottom: 0.75rem;
+    line-height: 1.7;
 }
 
 .message-content p:last-child {
     margin-bottom: 0;
 }
 
+/* Improved hierarchy with better spacing and colors */
 .message-content h1,
 .message-content h2,
 .message-content h3,
 .message-content h4 {
-    margin-top: 1rem;
-    margin-bottom: 0.5rem;
     font-weight: 600;
     line-height: 1.3;
+    color: var(--text-primary);
 }
 
 .message-content h1 {
-    font-size: 1.5rem;
+    font-size: 2.25rem;
+    margin-top: 3rem;
+    margin-bottom: 1.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid var(--kpmg-blue);
+    color: var(--kpmg-light-blue);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.message-content h1:first-child {
+    margin-top: 0;
 }
 
 .message-content h2 {
-    font-size: 1.25rem;
+    font-size: 1.75rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1.25rem;
+    color: var(--kpmg-light-blue);
+    padding-left: 1rem;
+    border-left: 4px solid var(--kpmg-blue);
+    font-weight: 600;
 }
 
 .message-content h3 {
-    font-size: 1.1rem;
+    font-size: 1.35rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    padding-top: 0.5rem;
+}
+
+.message-content h4 {
+    font-size: 1.15rem;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Section separators */
+.message-content hr {
+    margin: 3rem 0;
+    border: none;
+    border-top: 2px solid var(--border-subtle);
+    opacity: 0.4;
+}
+
+/* Better spacing for sections after headers */
+.message-content h2 + p,
+.message-content h3 + p {
+    margin-top: 0.5rem;
+}
+
+.message-content h2 + ul,
+.message-content h3 + ul,
+.message-content h2 + ol,
+.message-content h3 + ol {
+    margin-top: 0.75rem;
 }
 
 .message-content ul,
@@ -1180,4 +1236,465 @@ body {
 
 .data-table tbody tr:last-child td {
     border-bottom: none;
+}
+
+/* Key Metrics / Chiffres Clés Styles */
+.key-metrics-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin: 2.5rem 0;
+    padding: 0;
+}
+
+.key-metric-card {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.key-metric-card:hover {
+    transform: translateY(-2px);
+}
+
+.key-metric-value {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--kpmg-light-blue);
+    line-height: 1;
+    margin: 0 0 0.5rem 0;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -1px;
+}
+
+.key-metric-description {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+    flex: 1;
+    font-weight: 400;
+}
+
+.key-metric-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+/* Alternative layout: vertical bar on left (like in the images) */
+.key-metric-vertical {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    margin: 2rem 0;
+    padding: 0;
+}
+
+.key-metric-bar {
+    width: 5px;
+    min-height: 70px;
+    background: linear-gradient(to bottom, var(--kpmg-blue), var(--kpmg-light-blue));
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 0.25rem;
+}
+
+.key-metric-vertical .key-metric-content {
+    flex: 1;
+    padding-top: 0;
+}
+
+.key-metric-vertical .key-metric-value {
+    font-size: 2.75rem;
+    margin-bottom: 0.5rem;
+    color: var(--kpmg-light-blue);
+}
+
+.key-metric-vertical .key-metric-description {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* Improved table styling */
+.table-container {
+    margin: 2rem 0;
+    overflow-x: auto;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 1rem;
+    border: 1px solid var(--border-subtle);
+}
+
+.table-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 2px solid var(--kpmg-blue);
+    padding-bottom: 0.75rem;
+}
+
+/* Style all tables, including those from markdown */
+.data-table,
+.message-content table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: transparent;
+    border-radius: 8px;
+    overflow: hidden;
+    border: none;
+    margin: 0;
+}
+
+/* Ensure markdown tables are wrapped in container */
+.message-content > table {
+    margin: 2rem 0;
+}
+
+/* Auto-wrap markdown tables in container */
+.message-content > table:not(.data-table) {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid var(--border-subtle);
+}
+
+.data-table thead,
+.message-content table thead {
+    background: rgba(0, 51, 141, 0.15);
+    backdrop-filter: blur(10px);
+}
+
+.data-table th,
+.message-content table th {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--kpmg-blue);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.data-table td,
+.message-content table td {
+    padding: 1rem 1.25rem;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.data-table tbody tr,
+.message-content table tbody tr {
+    transition: background 0.2s ease;
+}
+
+.data-table tbody tr:hover,
+.message-content table tbody tr:hover {
+    background: rgba(0, 51, 141, 0.1);
+}
+
+.data-table tbody tr:last-child td,
+.message-content table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Better spacing for lists */
+.message-content ul,
+.message-content ol {
+    margin-bottom: 1.25rem;
+    padding-left: 1.75rem;
+    line-height: 1.8;
+}
+
+.message-content li {
+    margin-bottom: 0.5rem;
+}
+
+.message-content li::marker {
+    color: var(--kpmg-light-blue);
+}
+
+/* Source badges */
+.source-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.source-badge.internal {
+    background: rgba(16, 163, 127, 0.2);
+    color: #10a37f;
+}
+
+.source-badge.web {
+    background: rgba(0, 145, 218, 0.2);
+    color: var(--kpmg-light-blue);
+}
+
+.source-badge.estimation {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+}
+
+/* Improved chart container */
+.chart-container {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.chart-wrapper {
+    position: relative;
+    height: 350px;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+/* Blockquote styling for important notes */
+.message-content blockquote {
+    margin: 1.5rem 0;
+    padding: 1rem 1.5rem;
+    border-left: 4px solid var(--kpmg-blue);
+    background: rgba(0, 51, 141, 0.1);
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    color: var(--text-secondary);
+}
+
+/* Code blocks */
+.message-content pre {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    border: 1px solid var(--border-subtle);
+}
+
+.message-content code {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.message-content pre code {
+    background: transparent;
+    padding: 0;
+}
+
+/* ===== Progress Indicator Styles ===== */
+.progress-container {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    backdrop-filter: blur(10px);
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.progress-step {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.progress-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.progress-percentage {
+    font-weight: 700;
+    color: var(--kpmg-light-blue);
+    font-size: 1.1rem;
+}
+
+.progress-bar-wrapper {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--kpmg-blue), var(--kpmg-light-blue));
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.progress-details {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.progress-time {
+    margin-bottom: 0.5rem;
+}
+
+.step-detail {
+    margin-top: 0.5rem;
+    padding-left: 1rem;
+    border-left: 2px solid var(--kpmg-blue);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.progress-sections {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.sections-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.progress-section {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.section-check {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 1.1rem;
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ===== RAPPORT - SOMMAIRE & PARTIES ===== */
+
+/* Sommaire du rapport */
+#report-sommaire .message-content {
+    background: linear-gradient(135deg, rgba(0, 51, 141, 0.15) 0%, rgba(0, 145, 218, 0.1) 100%);
+    border: 1px solid var(--kpmg-blue);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+#report-sommaire .message-content h1 {
+    color: var(--kpmg-light-blue);
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#report-sommaire .message-content h2 {
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+#report-sommaire .message-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#report-sommaire .message-content li {
+    margin: 0.5rem 0;
+}
+
+#report-sommaire .message-content a {
+    color: var(--kpmg-light-blue);
+    text-decoration: none;
+    font-size: 1.05rem;
+    transition: color 0.2s ease, padding-left 0.2s ease;
+    display: inline-block;
+}
+
+#report-sommaire .message-content a:hover {
+    color: var(--text-primary);
+    padding-left: 0.5rem;
+}
+
+/* Headers de parties */
+.partie-header {
+    margin: 2rem 0 1rem 0;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(90deg, rgba(0, 51, 141, 0.3) 0%, transparent 100%);
+    border-left: 4px solid var(--kpmg-blue);
+    border-radius: 0 8px 8px 0;
+}
+
+.partie-header h2 {
+    color: var(--kpmg-light-blue);
+    font-size: 1.4rem;
+    margin: 0;
+    font-weight: 600;
+}
+
+/* Amélioration des sections du rapport */
+.message.bot .message-content h2 {
+    color: var(--text-primary);
+    font-size: 1.3rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.message.bot .message-content h3 {
+    color: var(--kpmg-light-blue);
+    font-size: 1.1rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Smooth scroll pour les ancres */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Animation pour les liens du sommaire */
+[id^="partie-"],
+[id^="section-"] {
+    scroll-margin-top: 20px;
 }
